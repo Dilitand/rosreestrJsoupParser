@@ -21,7 +21,7 @@ public class JsoupParserRosreestr {
         } catch (HttpStatusException ex) {
             realtyModel.setParsed(true);
             realtyModel.setNotFound(true);
-            realtyModel.setErrorMessage("status" + ex.getStatusCode() + "message" + ex.getMessage());
+            realtyModel.setErrorMessage("status:" + ex.getStatusCode() + " message:" + ex.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,7 +50,7 @@ public class JsoupParserRosreestr {
             List<Element> list = elements2.stream().filter(x -> x.childrenSize() > 0 && x.child(0).tagName().equals("strong")).collect(Collectors.toList());
             for (int i = 0; i < list.size(); i++) {
                 String currentText = list.get(i).text();
-                if (currentText.contains("Всего количество владельцев")) {
+                if (currentText.contains("количество владельцев")) {
                     realtyModel.setCountVladelcev(currentText.split(":")[1].trim());
                 } else if (currentText.contains("Тип:")) {
                     realtyModel.setType(currentText.split(":")[1].trim());
@@ -66,6 +66,8 @@ public class JsoupParserRosreestr {
                     realtyModel.setKindOfPrivice(currentText.split(":")[1].trim());
                 } else if (currentText.contains("Кадастровая стоимость:")) {
                     realtyModel.setKadastrStoimost(currentText.split(":")[1].trim());
+                } else if (currentText.contains("Дата определения стоимости:")) {
+                    realtyModel.setDateOprStoimost(currentText.split(":")[1].trim());
                 }
             }
             realtyModel.setParsed(true);

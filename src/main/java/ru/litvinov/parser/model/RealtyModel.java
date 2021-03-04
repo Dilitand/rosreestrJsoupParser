@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class RealtyModel {
-    boolean parsed;
+    Boolean parsed = false;
     String inputkadastr;
     String countVladelcev;
     String type;
@@ -14,6 +14,7 @@ public class RealtyModel {
     String area;
     String kindOfPrivice;
     String kadastrStoimost;
+    String dateOprStoimost;
     boolean notFound;
     String errorMessage;
 
@@ -26,8 +27,8 @@ public class RealtyModel {
 
     @Override
     public String toString() {
-       return parsed + "~" + inputkadastr + "~" + countVladelcev
+       return (parsed + "~" + inputkadastr + "~" + countVladelcev
                 + "~" + type + "~" + realKarastr + "~" + region + "~" + address
-                + "~" + area + "~" + kindOfPrivice + "~" + kadastrStoimost + "~" + notFound + "~" + errorMessage;
+                + "~" + area + "~" + kindOfPrivice + "~" + kadastrStoimost + "~" + dateOprStoimost + "~" + notFound + "~" + errorMessage + "~" + "endOfString").replaceAll("\n","");
     }
 }
