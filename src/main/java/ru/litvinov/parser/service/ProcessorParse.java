@@ -26,7 +26,6 @@ public class ProcessorParse {
         jsoupParserRosreestr = new JsoupParserRosreestr();
         updateAndDeleteAlreadyParsed();
         System.out.println("input models:" + realtyModels.size());
-        System.out.println(realtyModels);
     }
 
     public void updateAndDeleteAlreadyParsed() throws IOException {
