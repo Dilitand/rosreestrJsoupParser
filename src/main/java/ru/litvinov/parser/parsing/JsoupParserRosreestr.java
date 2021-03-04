@@ -9,6 +9,7 @@ import ru.litvinov.parser.model.RealtyModel;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,11 +46,12 @@ public class JsoupParserRosreestr {
             realtyModel.setNotFound(true);
             return realtyModel;
         } else {
-            Element bigElement = document.select("div.block1__object").get(0);
-            Elements elements2 = bigElement.getElementsByTag("div");
-            List<Element> list = elements2.stream().filter(x -> x.childrenSize() > 0 && x.child(0).tagName().equals("strong")).collect(Collectors.toList());
+            Element bigElement = document.select("div.block1__object").select("div.test__data").get(0);
+            //List<Element> list = bigElement.children().stream().filter(x -> x.childrenSize() > 0 && x.child(0).tagName().equals("strong")).collect(Collectors.toList());
+            List<Element> list = bigElement.children();
             for (int i = 0; i < list.size(); i++) {
                 String currentText = list.get(i).text();
+                System.out.println(currentText);
                 if (currentText.contains("количество владельцев")) {
                     realtyModel.setCountVladelcev(currentText.split(":")[1].trim());
                 } else if (currentText.contains("Тип:")) {
@@ -66,8 +68,8 @@ public class JsoupParserRosreestr {
                     realtyModel.setKindOfPrivice(currentText.split(":")[1].trim());
                 } else if (currentText.contains("Кадастровая стоимость:")) {
                     realtyModel.setKadastrStoimost(currentText.split(":")[1].trim());
-                } else if (currentText.contains("Дата определения стоимости:")) {
-                    realtyModel.setDateOprStoimost(currentText.split(":")[1].trim());
+                } else if (currentText.contains("Дата обновления информации:")) {
+                    realtyModel.setDateUpdate(currentText.split(":")[1].trim());
                 }
             }
             realtyModel.setParsed(true);
