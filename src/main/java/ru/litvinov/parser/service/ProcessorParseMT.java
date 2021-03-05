@@ -9,17 +9,19 @@ import ru.litvinov.parser.parsing.JsoupParserRosreestr;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class ProcessorParseMT implements ProcessorParseI{
+public class ProcessorParseMT implements ProcessorParseI {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("JCG");
 
     private Queue<RealtyModel> realtyModels = new ConcurrentLinkedQueue<>();
+    private Queue<RealtyModel> realtyModelsParsed = new ConcurrentLinkedQueue<>();
+
     private JsoupParserRosreestr jsoupParserRosreestr;
 
     public void init() throws IOException {
@@ -28,50 +30,52 @@ public class ProcessorParseMT implements ProcessorParseI{
                 .forEach(x -> realtyModels.add(new RealtyModel(x)));
         jsoupParserRosreestr = new JsoupParserRosreestr();
         updateAndDeleteAlreadyParsed();
-        System.out.println("input models:" + realtyModels.size());
+        LOGGER.info("input models:" + realtyModels.size());
     }
 
     public void updateAndDeleteAlreadyParsed() throws IOException {
-        /*
         if (Files.exists(Paths.get("output.dat"))) {
             LOGGER.info("Found some downloaded data, deserializing");
-            ArrayList<RealtyModel> processorParseOld = ProcessorParseSerial.deserialize("output.dat");
-            AtomicInteger downloaded = new AtomicInteger(0);
-            this.realtyModels.replaceAll(x -> processorParseOld.stream().filter(z -> z.getInputkadastr().equals(x.getInputkadastr()))
-                    .peek(z -> downloaded.getAndIncrement()).findFirst().get());
-            if (downloaded.intValue() > 0) {
-                LOGGER.info("Update " + downloaded.intValue() + " from cache");
+            realtyModelsParsed.addAll(ProcessorParseSerial.deserializeQueue("output.dat"));
+
+            int currentSize = realtyModels.size();
+            this.realtyModels.removeAll(realtyModelsParsed);
+            if (currentSize - realtyModels.size() > 0) {
+                LOGGER.info("Update " + (currentSize - realtyModels.size()) + " from cache");
             }
         }
-
-         */
     }
 
-    public void saveResult() throws IOException {
-        /*
-        Files.write(Paths.get("output.txt"), realtyModels.stream().filter(x -> x.getParsed()).map(x -> x.toString()).collect(Collectors.toList()));
-        ProcessorParseSerial.serialize(realtyModels, "output.dat");
-
-         */
+    public synchronized void saveResult() throws IOException {
+        System.out.println("saving result");
+        Files.write(Paths.get("output.txt"), realtyModelsParsed.stream().map(x -> x.toString()).collect(Collectors.toList()));
+        ProcessorParseSerial.serializeQueue(realtyModelsParsed, "output.dat");
     }
-
 
     public void processor() throws IOException, InterruptedException {
-/*
+        ExecutorService service = Executors.newSingleThreadExecutor(); /*Можно подкинуть реализацию другую и будет многопоточность*/
         for (int i = 0; i < realtyModels.size(); i++) {
-            if (!realtyModels.get(i).getParsed()) {
-                jsoupParserRosreestr.getRealtyModel(realtyModels.get(i), "https://rosreester.net/kadastr/" + realtyModels.get(i).getInputkadastr());
-            }
-            if (i % 100 == 0) {
-                saveResult();
-            }
-            Thread.sleep(100);
-            System.out.println("downloaded " + i + " of " + realtyModels.size());
+            service.execute(new Runnable() {
+                @SneakyThrows
+                @Override
+                public void run() {
+                    while (!realtyModels.isEmpty()) {
+                        RealtyModel realtyModel = realtyModels.poll();
+                        jsoupParserRosreestr.getRealtyModel(realtyModel, "https://rosreester.net/kadastr/" + realtyModel.getInputkadastr());
+                        realtyModelsParsed.add(realtyModel);
+                        Thread.sleep(100);
+                        System.out.println("downloaded " + realtyModelsParsed.size() + " of " + (realtyModels.size() + realtyModelsParsed.size()));
+                        if (realtyModelsParsed.size() % 100 == 0) {
+                            saveResult();
+                        }
+                        if (realtyModels.isEmpty()) {
+                            saveResult();
+                            System.out.println("Parsing complete");
+                        }
+                    }
+                    ;
+                }
+            });
         }
-        saveResult();
-        System.out.println("Parsing compleete");
-
- */
     }
-
 }

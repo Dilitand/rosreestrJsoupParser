@@ -1,17 +1,14 @@
 package ru.litvinov.parser;
 
-import ru.litvinov.parser.model.RealtyModel;
-import ru.litvinov.parser.parsing.JsoupParserRosreestr;
-import ru.litvinov.parser.service.ProcessorParse;
+import ru.litvinov.parser.service.ProcessorParseI;
+import ru.litvinov.parser.service.ProcessorParseMT;
 
 import java.io.IOException;
 
 public class Main {
 
-
-
     public static void main(String[] args) throws IOException, InterruptedException {
-        ProcessorParse processorParse = new ProcessorParse();
+        ProcessorParseI processorParse = new ProcessorParseMT();
         processorParse.init();
         processorParse.processor();
     }

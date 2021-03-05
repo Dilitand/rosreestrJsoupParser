@@ -4,7 +4,7 @@ import ru.litvinov.parser.model.RealtyModel;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Queue;
+import java.util.Collection;
 
 public class ProcessorParseSerial {
 
@@ -17,8 +17,8 @@ public class ProcessorParseSerial {
 
 
     public static ArrayList deserialize(String path) throws IOException {
-        try(FileInputStream fileInputStream = new FileInputStream(path);
-            ObjectInputStream inputStream = new ObjectInputStream(fileInputStream);) {
+        try (FileInputStream fileInputStream = new FileInputStream(path);
+             ObjectInputStream inputStream = new ObjectInputStream(fileInputStream);) {
             return (ArrayList) inputStream.readObject();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -26,7 +26,7 @@ public class ProcessorParseSerial {
         return null;
     }
 
-    public static void serializeQueue(Queue<RealtyModel> processorParse, String path) throws IOException {
+    public static void serializeQueue(Collection<RealtyModel> processorParse, String path) throws IOException {
         try (FileOutputStream fileOutputStream = new FileOutputStream(path);
              ObjectOutputStream outputStream = new ObjectOutputStream(fileOutputStream)) {
             outputStream.writeObject(processorParse);
@@ -34,11 +34,11 @@ public class ProcessorParseSerial {
     }
 
 
-    public static Queue deserializeQueue(String path) throws IOException {
-        try(FileInputStream fileInputStream = new FileInputStream(path);
-            ObjectInputStream inputStream = new ObjectInputStream(fileInputStream);) {
-            return (Queue) inputStream.readObject();
-        } catch (ClassNotFoundException e) {
+    public static Collection deserializeQueue(String path) {
+        try (FileInputStream fileInputStream = new FileInputStream(path);
+             ObjectInputStream inputStream = new ObjectInputStream(fileInputStream);) {
+            return (Collection) inputStream.readObject();
+        } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
         return null;
