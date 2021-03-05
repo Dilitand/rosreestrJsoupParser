@@ -11,17 +11,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class ProcessorParse implements ProcessorParseI{
+public class ProcessorParseMT implements ProcessorParseI{
 
     private static final Logger LOGGER = LoggerFactory.getLogger("JCG");
 
-    private ArrayList<RealtyModel> realtyModels = new ArrayList<>();
+    private Queue<RealtyModel> realtyModels = new ConcurrentLinkedQueue<>();
     private JsoupParserRosreestr jsoupParserRosreestr;
 
     public void init() throws IOException {
@@ -34,6 +32,7 @@ public class ProcessorParse implements ProcessorParseI{
     }
 
     public void updateAndDeleteAlreadyParsed() throws IOException {
+        /*
         if (Files.exists(Paths.get("output.dat"))) {
             LOGGER.info("Found some downloaded data, deserializing");
             ArrayList<RealtyModel> processorParseOld = ProcessorParseSerial.deserialize("output.dat");
@@ -44,15 +43,21 @@ public class ProcessorParse implements ProcessorParseI{
                 LOGGER.info("Update " + downloaded.intValue() + " from cache");
             }
         }
+
+         */
     }
 
     public void saveResult() throws IOException {
+        /*
         Files.write(Paths.get("output.txt"), realtyModels.stream().filter(x -> x.getParsed()).map(x -> x.toString()).collect(Collectors.toList()));
         ProcessorParseSerial.serialize(realtyModels, "output.dat");
+
+         */
     }
 
 
     public void processor() throws IOException, InterruptedException {
+/*
         for (int i = 0; i < realtyModels.size(); i++) {
             if (!realtyModels.get(i).getParsed()) {
                 jsoupParserRosreestr.getRealtyModel(realtyModels.get(i), "https://rosreester.net/kadastr/" + realtyModels.get(i).getInputkadastr());
@@ -65,6 +70,8 @@ public class ProcessorParse implements ProcessorParseI{
         }
         saveResult();
         System.out.println("Parsing compleete");
+
+ */
     }
 
 }
